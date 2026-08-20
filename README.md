@@ -142,21 +142,21 @@ Full setup script: [`/SQL`](https://claude.ai/chat/SQL)
 **Total bookings, cancellation rate, and revenue by hotel type**
 
 ```sql
-WITH summary\_cte AS(
+WITH summary_cte AS(
 	SELECT 
 		hotel,
-		COUNT(\*) AS total\_bookings\_received,
-		COUNT(CASE WHEN is\_canceled = 0 THEN booking\_id END) AS confirmed\_bookings,
-		COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancelations,
-		SUM(CASE WHEN is\_canceled = 0 THEN total\_revenue END) AS revenue
-	FROM hotel\_bookings
+		COUNT(*) AS total_bookings_received,
+		COUNT(CASE WHEN is_canceled = 0 THEN booking_id END) AS confirmed_bookings,
+		COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancelations,
+		SUM(CASE WHEN is_canceled = 0 THEN total_revenue END) AS revenue
+	FROM hotel_bookings
 	GROUP BY hotel
 )
 SELECT 
-	hotel, total\_bookings\_received, confirmed\_bookings, cancelations,
-    ROUND(100 \* cancelations / total\_bookings\_received, 2) AS cancelation\_rate,
+	hotel, total_bookings_received, confirmed_bookings, cancelations,
+    ROUND(100 * cancelations / total_bookings_received, 2) AS cancelation_rate,
     revenue
-FROM summary\_cte;
+FROM summary_cte;
 
 ```
 
@@ -166,13 +166,13 @@ FROM summary\_cte;
 
 ```sql
 SELECT 
-    DATE\_FORMAT(arrival\_date, '%Y-%m') AS year\_month,
-    COUNT(booking\_id) AS confirmed\_bookings,
-    SUM(total\_revenue) AS total\_revenue
-FROM hotel\_bookings
-WHERE is\_canceled = 0
-GROUP BY year\_month
-ORDER BY year\_month;
+    DATE_FORMAT(arrival_date, '%Y-%m') AS year_month,
+    COUNT(booking_id) AS confirmed_bookings,
+    SUM(total_revenue) AS total_revenue
+FROM hotel_bookings
+WHERE is_canceled = 0
+GROUP BY year_month
+ORDER BY year_month;
 
 ```
 
@@ -184,14 +184,13 @@ ORDER BY year\_month;
 
 ```sql
 SELECT 
-    deposit\_type,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancelations,
-    SUM(CASE WHEN is\_canceled = 1 THEN total\_revenue END) AS opportunity\_cost,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancelation\_rate
-FROM hotel\_bookings
-GROUP BY deposit\_type;
-
+    deposit_type,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancelations,
+    SUM(CASE WHEN is_canceled = 1 THEN total_revenue END) AS opportunity_cost,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancelation_rate
+FROM hotel_bookings
+GROUP BY deposit_type;
 ```
 
 📌 Non-Refund: **94.70%** cancellation (982 of 1,037 bookings). No Deposit: 26.72%. Refundable: 24.30%.
@@ -200,11 +199,11 @@ GROUP BY deposit\_type;
 
 ```sql
 SELECT 
-    market\_segment, distribution\_channel, agent,
-    COUNT(booking\_id) AS cancellations
-FROM hotel\_bookings
-WHERE deposit\_type = 'Non Refund' AND is\_canceled = 1
-GROUP BY market\_segment, distribution\_channel, agent
+    market_segment, distribution_channel, agent,
+    COUNT(booking_id) AS cancellations
+FROM hotel_bookings
+WHERE deposit_type = 'Non Refund' AND is_canceled = 1
+GROUP BY market_segment, distribution_channel, agent
 ORDER BY cancellations DESC;
 
 ```
@@ -215,13 +214,13 @@ ORDER BY cancellations DESC;
 
 ```sql
 SELECT 
-    lead\_time\_band,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancelations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancelation\_rate
-FROM hotel\_bookings
-GROUP BY lead\_time\_band
-ORDER BY cancelation\_rate DESC;
+    lead_time_band,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancelations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancelation_rate
+FROM hotel_bookings
+GROUP BY lead_time_band
+ORDER BY cancelation_rate DESC;
 
 ```
 
@@ -231,14 +230,14 @@ ORDER BY cancelation\_rate DESC;
 
 ```sql
 SELECT 
-    market\_segment, distribution\_channel,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancelations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancelation\_rate
-FROM hotel\_bookings
-GROUP BY market\_segment, distribution\_channel
-HAVING total\_bookings\_received >= 10
-ORDER BY cancelation\_rate DESC;
+    market_segment, distribution_channel,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancelations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancelation_rate
+FROM hotel_bookings
+GROUP BY market_segment, distribution_channel
+HAVING total_bookings_received >= 10
+ORDER BY cancelation_rate DESC;
 
 ```
 
@@ -249,21 +248,20 @@ ORDER BY cancelation\_rate DESC;
 ```sql
 SELECT 
     CASE
-        WHEN previous\_cancellations = 0 THEN '0'
-        WHEN previous\_cancellations = 1 THEN '1'
-        WHEN previous\_cancellations = 2 THEN '2'
-        WHEN previous\_cancellations = 3 THEN '3'
-        WHEN previous\_cancellations = 4 THEN '4'
-        WHEN previous\_cancellations = 5 THEN '5'
+        WHEN previous_cancellations = 0 THEN '0'
+        WHEN previous_cancellations = 1 THEN '1'
+        WHEN previous_cancellations = 2 THEN '2'
+        WHEN previous_cancellations = 3 THEN '3'
+        WHEN previous_cancellations = 4 THEN '4'
+        WHEN previous_cancellations = 5 THEN '5'
         ELSE '6+'
-    END AS previous\_cancellations\_binned,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancelations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancelation\_rate
-FROM hotel\_bookings
-GROUP BY previous\_cancellations\_binned
-ORDER BY previous\_cancellations\_binned;
-
+    END AS previous_cancellations_binned,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancelations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancelation_rate
+FROM hotel_bookings
+GROUP BY previous_cancellations_binned
+ORDER BY previous_cancellations_binned;
 ```
 
 📌 Sharp, non-monotonic spike at exactly 1 prior cancellation (76.16%) — over 2.5× the 0-prior rate (26.73%) — driven partly by the same Non-Refund/Groups population found above.
@@ -272,13 +270,13 @@ ORDER BY previous\_cancellations\_binned;
 
 ```sql
 SELECT 
-    customer\_type,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancellations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancellation\_rate
-FROM hotel\_bookings
-GROUP BY customer\_type
-ORDER BY customer\_type;
+    customer_type,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancellations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancellation_rate
+FROM hotel_bookings
+GROUP BY customer_type
+ORDER BY customer_type;
 
 ```
 
@@ -290,11 +288,11 @@ ORDER BY customer\_type;
 
 ```sql
 SELECT 
-    hotel, assigned\_room\_type, MONTH(arrival\_date) AS arrival\_month,
-    AVG(CASE WHEN is\_canceled = 0 THEN adr END) AS avg\_adr
-FROM hotel\_bookings
-GROUP BY hotel, assigned\_room\_type, arrival\_month
-ORDER BY avg\_adr DESC;
+    hotel, assigned_room_type, MONTH(arrival_date) AS arrival_month,
+    AVG(CASE WHEN is_canceled = 0 THEN adr END) AS avg_adr
+FROM hotel_bookings
+GROUP BY hotel, assigned_room_type, arrival_month
+ORDER BY avg_adr DESC;
 
 ```
 
@@ -305,10 +303,10 @@ ORDER BY avg\_adr DESC;
 ```sql
 SELECT 
     hotel,
-    SUM(total\_revenue) AS total\_potential\_revenue,
-    SUM(CASE WHEN is\_canceled = 1 THEN total\_revenue END) AS revenue\_at\_risk\_from\_cancellations,
-    ROUND(100 \* SUM(CASE WHEN is\_canceled = 1 THEN total\_revenue END) / SUM(total\_revenue), 2) AS cancelled\_percent
-FROM hotel\_bookings
+    SUM(total_revenue) AS total_potential_revenue,
+    SUM(CASE WHEN is_canceled = 1 THEN total_revenue END) AS revenue_at_risk_from_cancellations,
+    ROUND(100 * SUM(CASE WHEN is_canceled = 1 THEN total_revenue END) / SUM(total_revenue), 2) AS cancelled_percent
+FROM hotel_bookings
 GROUP BY hotel;
 
 ```
@@ -319,10 +317,10 @@ GROUP BY hotel;
 
 ```sql
 SELECT 
-    (AVG(lead\_time \* adr) - AVG(lead\_time) \* AVG(adr)) /
-    (STDDEV\_POP(lead\_time) \* STDDEV\_POP(adr)) AS correlation\_coefficient
-FROM hotel\_bookings
-WHERE is\_canceled = 0;
+    (AVG(lead_time * adr) - AVG(lead_time) * AVG(adr)) /
+    (STDDEV_POP(lead_time) * STDDEV_POP(adr)) AS correlation_coefficient
+FROM hotel_bookings
+WHERE is_canceled = 0;
 
 ```
 
@@ -332,11 +330,11 @@ WHERE is\_canceled = 0;
 
 ```sql
 SELECT 
-    DATE\_FORMAT(arrival\_date, '%Y-%m') AS year\_month,
-    ROUND(AVG(CASE WHEN is\_canceled = 0 THEN adr END), 2) AS avg\_adr
-FROM hotel\_bookings
-GROUP BY year\_month
-ORDER BY year\_month;
+    DATE_FORMAT(arrival_date, '%Y-%m') AS year_month,
+    ROUND(AVG(CASE WHEN is_canceled = 0 THEN adr END), 2) AS avg_adr
+FROM hotel_bookings
+GROUP BY year_month
+ORDER BY year_month;
 
 ```
 
@@ -349,13 +347,13 @@ ORDER BY year\_month;
 ```sql
 SELECT 
     country,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 0 THEN booking\_id END) AS confirmed\_bookings,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancellations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancellation\_rate
-FROM hotel\_bookings
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 0 THEN booking_id END) AS confirmed_bookings,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancellations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancellation_rate
+FROM hotel_bookings
 GROUP BY country
-ORDER BY total\_bookings\_received DESC, cancellation\_rate DESC
+ORDER BY total_bookings_received DESC, cancellation_rate DESC
 LIMIT 10;
 
 ```
@@ -364,20 +362,20 @@ LIMIT 10;
 
 ```sql
 SELECT 
-    market\_segment,
+    market_segment,
     CASE
-        WHEN total\_guests BETWEEN 1 AND 5 THEN '1-5'
-        WHEN total\_guests BETWEEN 6 AND 15 THEN '6-15'
-        WHEN total\_guests BETWEEN 16 AND 30 THEN '16-30'
+        WHEN total_guests BETWEEN 1 AND 5 THEN '1-5'
+        WHEN total_guests BETWEEN 6 AND 15 THEN '6-15'
+        WHEN total_guests BETWEEN 16 AND 30 THEN '16-30'
         ELSE '31+'
-    END AS party\_size,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 0 THEN booking\_id END) AS confirmed\_bookings,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 0 THEN booking\_id END) / COUNT(\*), 2) AS confirmation\_rate
-FROM hotel\_bookings
-GROUP BY market\_segment, party\_size
-HAVING total\_bookings\_received >= 10
-ORDER BY confirmation\_rate DESC;
+    END AS party_size,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 0 THEN booking_id END) AS confirmed_bookings,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 0 THEN booking_id END) / COUNT(*), 2) AS confirmation_rate
+FROM hotel_bookings
+GROUP BY market_segment, party_size
+HAVING total_bookings_received >= 10
+ORDER BY confirmation_rate DESC;
 
 ```
 
@@ -386,10 +384,10 @@ ORDER BY confirmation\_rate DESC;
 ```sql
 SELECT 
     country,
-    SUM(CASE WHEN is\_canceled = 0 THEN total\_revenue END) AS total\_confirmed\_revenue
-FROM hotel\_bookings
+    SUM(CASE WHEN is_canceled = 0 THEN total_revenue END) AS total_confirmed_revenue
+FROM hotel_bookings
 GROUP BY country
-ORDER BY total\_confirmed\_revenue DESC
+ORDER BY total_confirmed_revenue DESC
 LIMIT 10;
 
 ```
@@ -400,10 +398,10 @@ LIMIT 10;
 
 ```sql
 SELECT 
-    hotel, market\_segment,
-    ROUND(IFNULL(AVG(CASE WHEN is\_canceled = 0 THEN total\_nights END), 0), 2) AS avg\_length\_of\_stay
-FROM hotel\_bookings
-GROUP BY hotel, market\_segment;
+    hotel, market_segment,
+    ROUND(IFNULL(AVG(CASE WHEN is_canceled = 0 THEN total_nights END), 0), 2) AS avg_length_of_stay
+FROM hotel_bookings
+GROUP BY hotel, market_segment;
 
 ```
 
@@ -411,18 +409,18 @@ GROUP BY hotel, market\_segment;
 
 ```sql
 SELECT 
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN room\_type\_mismatch = 1 THEN booking\_id END) AS bookings\_with\_room\_mismatch,
-    ROUND(100 \* COUNT(CASE WHEN room\_type\_mismatch = 1 THEN booking\_id END) / COUNT(\*), 2) AS room\_mismatch\_rate,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancellations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancellation\_rate
-FROM hotel\_bookings;
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN room_type_mismatch = 1 THEN booking_id END) AS bookings_with_room_mismatch,
+    ROUND(100 * COUNT(CASE WHEN room_type_mismatch = 1 THEN booking_id END) / COUNT(*), 2) AS room_mismatch_rate,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancellations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancellation_rate
+FROM hotel_bookings;
 
 -- Row-level Pearson correlation
 SELECT 
-    (AVG(room\_type\_mismatch \* is\_canceled) - AVG(room\_type\_mismatch) \* AVG(is\_canceled)) /
-    (STDDEV\_POP(room\_type\_mismatch) \* STDDEV\_POP(is\_canceled)) AS correlation\_coefficient
-FROM hotel\_bookings;
+    (AVG(room_type_mismatch * is_canceled) - AVG(room_type_mismatch) * AVG(is_canceled)) /
+    (STDDEV_POP(room_type_mismatch) * STDDEV_POP(is_canceled)) AS correlation_coefficient
+FROM hotel_bookings;
 
 ```
 
@@ -434,12 +432,12 @@ FROM hotel\_bookings;
 
 ```sql
 SELECT 
-    CASE WHEN is\_repeated\_guest = 1 THEN 'repeat\_guests' ELSE 'new\_guests' END AS guest\_type,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancellations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancellation\_rate
-FROM hotel\_bookings
-GROUP BY guest\_type;
+    CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancellations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancellation_rate
+FROM hotel_bookings
+GROUP BY guest_type;
 
 ```
 
@@ -449,10 +447,10 @@ GROUP BY guest\_type;
 
 ```sql
 SELECT 
-    CASE WHEN is\_repeated\_guest = 1 THEN 'repeat\_guests' ELSE 'new\_guests' END AS guest\_type,
-    ROUND(IFNULL(AVG(CASE WHEN is\_canceled = 0 THEN adr END), 0), 2) AS avg\_adr
-FROM hotel\_bookings
-GROUP BY guest\_type;
+    CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
+    ROUND(IFNULL(AVG(CASE WHEN is_canceled = 0 THEN adr END), 0), 2) AS avg_adr
+FROM hotel_bookings
+GROUP BY guest_type;
 
 ```
 
@@ -462,19 +460,19 @@ GROUP BY guest\_type;
 
 ```sql
 SELECT 
-    total\_of\_special\_requests,
-    COUNT(\*) AS total\_bookings\_received,
-    COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) AS cancellations,
-    ROUND(100 \* COUNT(CASE WHEN is\_canceled = 1 THEN booking\_id END) / COUNT(\*), 2) AS cancellation\_rate
-FROM hotel\_bookings
-GROUP BY total\_of\_special\_requests
-ORDER BY cancellation\_rate;
+    total_of_special_requests,
+    COUNT(*) AS total_bookings_received,
+    COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) AS cancellations,
+    ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancellation_rate
+FROM hotel_bookings
+GROUP BY total_of_special_requests
+ORDER BY cancellation_rate;
 
 -- Row-level Pearson correlation
 SELECT 
-    (AVG(total\_of\_special\_requests \* is\_canceled) - AVG(total\_of\_special\_requests) \* AVG(is\_canceled)) /
-    (STDDEV\_POP(total\_of\_special\_requests) \* STDDEV\_POP(is\_canceled)) AS correlation\_coefficient
-FROM hotel\_bookings;
+    (AVG(total_of_special_requests * is_canceled) - AVG(total_of_special_requests) * AVG(is_canceled)) /
+    (STDDEV_POP(total_of_special_requests) * STDDEV_POP(is_canceled)) AS correlation_coefficient
+FROM hotel_bookings;
 
 ```
 
@@ -484,10 +482,10 @@ FROM hotel\_bookings;
 
 ```sql
 SELECT 
-    customer\_type,
-    ROUND(AVG(required\_car\_parking\_spaces), 2) AS avg\_parking\_space\_required
-FROM hotel\_bookings
-GROUP BY customer\_type;
+    customer_type,
+    ROUND(AVG(required_car_parking_spaces), 2) AS avg_parking_space_required
+FROM hotel_bookings
+GROUP BY customer_type;
 
 ```
 
