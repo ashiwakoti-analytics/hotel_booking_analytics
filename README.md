@@ -112,7 +112,7 @@ Cleaning was done in pandas before loading into SQL. Key steps:
 
 **Result: 119,390 raw rows → 87,221 cleaned rows.**
 
-Full cleaning notebook: [`/Python`](https://claude.ai/chat/Python)
+🐍Full cleaning notebook: [Hotel Booking Cleaning Notebook](Python/Hotel_booking_cleaning.ipynb)
 
 \---
 
@@ -129,7 +129,7 @@ Cleaned data was loaded into a single `hotel\_bookings` table in MySQL, with der
 |`room\_type\_mismatch`|`1` if `reserved\_room\_type ≠ assigned\_room\_type` else `0`|Room assignment analysis|
 |`lead\_time\_band`|Custom bins (0-3, 4-7, 8-14, 15-30, 31-60, 61-90, 91-180, 181-365, 366+)|Reused across multiple cancellation-driver queries|
 
-Full setup script: [`/SQL`](https://claude.ai/chat/SQL)
+🗄️Full setup script: [Hotel Booking Database_Setup](SQL/Database_Setup.sql)
 
 \---
 
@@ -489,7 +489,7 @@ GROUP BY customer_type;
 
 ```
 
-Full query set: [`/SQL`](https://claude.ai/chat/SQL)
+🗄️Full query set:[SQL Scripts](SQL/Queries.sql)
 
 \---
 
@@ -517,7 +517,7 @@ Avg ADR (Confirmed) = CALCULATE(AVERAGE(fact\_bookings\[adr]), fact\_bookings\[i
 
 Correlation measures (special requests, room mismatch, lead time vs. ADR) were rebuilt in DAX using the same manual Pearson formula as the SQL layer (`STDEVX.P` in place of MySQL's `STDDEV\_POP`), so the dashboard's correlation callouts match the corrected, row-level SQL results exactly.
 
-Full report file: [`/Power BI`](https://claude.ai/chat/Power%20BI)
+📊Full report file: [Power BI](Power BI/Hotel_booking_report.pbix)
 
 \---
 
