@@ -32,23 +32,23 @@ The project covers the full analytics workflow:
 
 **🧱 Power BI Data Model**
 
-**!\[Power BI Data Model](Screenshots/Model.png)**
+**![Power BI Data Model](Screenshots/Model.png)**
 
 **Page 1 — Executive Overview** KPI strip (bookings, cancellation rate, revenue, avg. ADR), monthly seasonality trend by hotel, hotel-type comparison, top 10 countries by confirmed revenue.
 
-!\[Executive Overview](Screenshots/Executive\_Overview.png)
+![Executive Overview](Screenshots/Executive\_Overview.png)
 
 **Page 2 — Cancellation Drivers** Deposit-type cancellation rate (the dataset's standout finding), lead-time-band cancellation gradient, market segment × channel heatmap, cancellation history, customer type.
 
-!\[Cancellation Drivers](Screenshots/Cancellation\_trend.png)
+![Cancellation Drivers](Screenshots/Cancellation\_trend.png)
 
 **Page 3 — Revenue \& Pricing** ADR trend over time by hotel, ADR by room type \& hotel, revenue at risk from cancellations, lead-time/ADR correlation.
 
-!\[Revenue \& Pricing](Screenshots/Revenue\_\&\_Pricing.png)
+![Revenue \& Pricing](Screenshots/Revenue\_\&\_Pricing.png)
 
 **Page 4 — Guest Behavior \& Loyalty** Repeat vs. new guest cancellation and ADR comparison, special-requests vs. cancellation trend, room-mismatch analysis, party size by segment, parking requests by customer type.
 
-!\[Guest Behaviour \& Loyalty](Screenshots/Guest\_Behaviour.png)
+![Guest Behaviour \& Loyalty](Screenshots/Guest\_Behaviour.png)
 
 \---
 
