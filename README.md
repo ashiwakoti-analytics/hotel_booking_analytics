@@ -139,8 +139,7 @@ Cleaned data was loaded into a single `hotel\_bookings` table in MySQL, with der
 
 ### Overview
 
-**Total bookings, cancellation rate, and revenue by hotel type**
-
+Total bookings, cancellation rate, and revenue by hotel type
 ```sql
 WITH summary_cte AS(
 	SELECT 
@@ -157,13 +156,21 @@ SELECT
     ROUND(100 * cancelations / total_bookings_received, 2) AS cancelation_rate,
     revenue
 FROM summary_cte;
-
 ```
-
 📌 City Hotel: 53,271 bookings, 30.10% cancellation rate, $12.15M confirmed revenue. Resort Hotel: 33,950 bookings, 23.49% cancellation rate, $10.82M confirmed revenue.
-
-**Booking and revenue trend, 2015–2017**
-
+Booking volume by calendar month (seasonality, all years combined)
+```sql
+SELECT 
+    MONTH(arrival_date) AS calendar_month,
+    COUNT(booking_id) AS confirmed_bookings,
+    SUM(total_revenue) AS total_revenue
+FROM hotel_bookings
+WHERE is_canceled = 0
+GROUP BY calendar_month
+ORDER BY calendar_month;
+```
+📌 August is the single busiest calendar month across all three years combined (7,620 confirmed bookings, $4.6M revenue), with July close behind. November–January is the trough (~3,700–3,900 bookings, under $1M revenue).
+Booking and revenue trend, 2015–2017
 ```sql
 SELECT 
     DATE_FORMAT(arrival_date, '%Y-%m') AS year_month,
@@ -173,15 +180,10 @@ FROM hotel_bookings
 WHERE is_canceled = 0
 GROUP BY year_month
 ORDER BY year_month;
-
 ```
-
 📌 August is the peak month every year (7,620 confirmed bookings, $4.6M revenue at its highest). Revenue grew faster than booking volume year over year — e.g. July 2016→2017 bookings +6.5%, revenue +18% — pointing to rate growth rather than volume growth as the main driver.
-
-### Cancellation Analysis
-
-**Cancellation rate by deposit type**
-
+Cancellation Analysis
+Cancellation rate by deposit type
 ```sql
 SELECT 
     deposit_type,
@@ -192,11 +194,8 @@ SELECT
 FROM hotel_bookings
 GROUP BY deposit_type;
 ```
-
-📌 Non-Refund: **94.70%** cancellation (982 of 1,037 bookings). No Deposit: 26.72%. Refundable: 24.30%.
-
-**Investigating the Non-Refund anomaly — market segment, channel, and agent**
-
+📌 Non-Refund: 94.70% cancellation (982 of 1,037 bookings). No Deposit: 26.72%. Refundable: 24.30%.
+Investigating the Non-Refund anomaly — market segment, channel, and agent
 ```sql
 SELECT 
     market_segment, distribution_channel, agent,
@@ -205,13 +204,9 @@ FROM hotel_bookings
 WHERE deposit_type = 'Non Refund' AND is_canceled = 1
 GROUP BY market_segment, distribution_channel, agent
 ORDER BY cancellations DESC;
-
 ```
-
 📌 64.4% of Non-Refund cancellations come from the "Groups" market segment, 89% flow through the TA/TO channel, and a single agent accounts for nearly a third of the anomaly on its own — consistent with tour-operator block bookings being released rather than individual guest cancellations.
-
-**Cancellation rate by lead time band**
-
+Cancellation rate by lead time band
 ```sql
 SELECT 
     lead_time_band,
@@ -221,13 +216,9 @@ SELECT
 FROM hotel_bookings
 GROUP BY lead_time_band
 ORDER BY cancelation_rate DESC;
-
 ```
-
 📌 Clean, monotonic gradient: 7.14% (0-3 days) → 11.39% → 20.63% → 28.29% → 31.66% → 32.58% → 35.01% → 39.69% → 40.78% (366+ days).
-
-**Cancellation rate by market segment and distribution channel** (filtered to n ≥ 10 to avoid small-sample noise)
-
+Cancellation rate by market segment and distribution channel (filtered to n ≥ 10 to avoid small-sample noise)
 ```sql
 SELECT 
     market_segment, distribution_channel,
@@ -238,13 +229,9 @@ FROM hotel_bookings
 GROUP BY market_segment, distribution_channel
 HAVING total_bookings_received >= 10
 ORDER BY cancelation_rate DESC;
-
 ```
-
 📌 Online TA/TA-TO: 35.51% cancellation on 51,251 bookings — the largest volume and one of the highest risk segments simultaneously. Direct bookings are consistently the safest across every channel pairing.
-
-**Cancellation rate by previous cancellation history**
-
+Cancellation rate by previous cancellation history
 ```sql
 SELECT 
     CASE
@@ -263,11 +250,8 @@ FROM hotel_bookings
 GROUP BY previous_cancellations_binned
 ORDER BY previous_cancellations_binned;
 ```
-
 📌 Sharp, non-monotonic spike at exactly 1 prior cancellation (76.16%) — over 2.5× the 0-prior rate (26.73%) — driven partly by the same Non-Refund/Groups population found above.
-
-**Cancellation rate by customer type**
-
+Cancellation rate by customer type
 ```sql
 SELECT 
     customer_type,
@@ -277,15 +261,10 @@ SELECT
 FROM hotel_bookings
 GROUP BY customer_type
 ORDER BY customer_type;
-
 ```
-
-📌 Transient (individual) bookings — 82% of the dataset — cancel at 30.14%, by far the highest of the four customer types. Notably, this contradicts the *market segment* "Groups" finding above: `customer\_type = Group` actually has the *lowest* cancellation rate (9.80%) of any customer type — these are two distinct classifications in the source data, not a contradiction in the analysis.
-
-### Revenue Analysis
-
-**Average ADR by hotel, room type, and month**
-
+📌 Transient (individual) bookings — 82% of the dataset — cancel at 30.14%, by far the highest of the four customer types. Notably, this contradicts the market segment "Groups" finding above: `customer_type = Group` actually has the lowest cancellation rate (9.80%) of any customer type — these are two distinct classifications in the source data, not a contradiction in the analysis.
+Revenue Analysis
+Average ADR by hotel, room type, and month
 ```sql
 SELECT 
     hotel, assigned_room_type, MONTH(arrival_date) AS arrival_month,
@@ -293,13 +272,9 @@ SELECT
 FROM hotel_bookings
 GROUP BY hotel, assigned_room_type, arrival_month
 ORDER BY avg_adr DESC;
-
 ```
-
-📌 Room types G and F command the highest rates at both hotels; the most-booked room type (A) sits near the bottom of the pricing scale. Resort Hotel's pricing swings nearly 4× seasonally ($48.60 January → $182.10 August); City Hotel is far flatter (\~$83–125 year-round).
-
-**Revenue at risk from cancellations**
-
+📌 Room types G and F command the highest rates at both hotels; the most-booked room type (A) sits near the bottom of the pricing scale. Resort Hotel's pricing swings nearly 4× seasonally ($48.60 January → $182.10 August); City Hotel is far flatter (~$83–125 year-round).
+Revenue at risk from cancellations
 ```sql
 SELECT 
     hotel,
@@ -308,26 +283,18 @@ SELECT
     ROUND(100 * SUM(CASE WHEN is_canceled = 1 THEN total_revenue END) / SUM(total_revenue), 2) AS cancelled_percent
 FROM hotel_bookings
 GROUP BY hotel;
-
 ```
-
-📌 City Hotel: 35.23% of potential revenue at risk ($6.61M). Resort Hotel: 31.04% ($4.87M). Framed as revenue *at risk*, not revenue definitively lost, since cancelled rooms may be resold to another guest.
-
-**Does lead time correlate with ADR?**
-
+📌 City Hotel: 35.23% of potential revenue at risk ($6.61M). Resort Hotel: 31.04% ($4.87M). Framed as revenue at risk, not revenue definitively lost, since cancelled rooms may be resold to another guest.
+Does lead time correlate with ADR?
 ```sql
 SELECT 
     (AVG(lead_time * adr) - AVG(lead_time) * AVG(adr)) /
     (STDDEV_POP(lead_time) * STDDEV_POP(adr)) AS correlation_coefficient
 FROM hotel_bookings
 WHERE is_canceled = 0;
-
 ```
-
 📌 r ≈ 0.028 — no meaningful relationship. Booking further in advance doesn't predict a higher or lower rate in this dataset.
-
-**ADR trend over time**
-
+ADR trend over time
 ```sql
 SELECT 
     DATE_FORMAT(arrival_date, '%Y-%m') AS year_month,
@@ -335,15 +302,10 @@ SELECT
 FROM hotel_bookings
 GROUP BY year_month
 ORDER BY year_month;
-
 ```
-
 📌 Comparing the same month year over year, ADR rose consistently: July $116.59 → $129.86 → $143.92; August $121.77 → $147.37 → $164.66 — roughly 24–35% growth in peak-season rate over two years.
-
-### Guest Geography
-
-**Top 10 countries by booking volume and cancellation rate**
-
+Guest Geography
+Top 10 countries by booking volume and cancellation rate
 ```sql
 SELECT 
     country,
@@ -355,11 +317,8 @@ FROM hotel_bookings
 GROUP BY country
 ORDER BY total_bookings_received DESC, cancellation_rate DESC
 LIMIT 10;
-
 ```
-
-**Party size by market segment** (filtered to n ≥ 10)
-
+Party size by market segment (filtered to n ≥ 10)
 ```sql
 SELECT 
     market_segment,
@@ -376,11 +335,8 @@ FROM hotel_bookings
 GROUP BY market_segment, party_size
 HAVING total_bookings_received >= 10
 ORDER BY confirmation_rate DESC;
-
 ```
-
-**Top countries by confirmed revenue**
-
+Top countries by confirmed revenue
 ```sql
 SELECT 
     country,
@@ -389,24 +345,17 @@ FROM hotel_bookings
 GROUP BY country
 ORDER BY total_confirmed_revenue DESC
 LIMIT 10;
-
 ```
-
-### Stay Patterns \& Room Assignment
-
-**Average length of stay by hotel and market segment**
-
+Stay Patterns & Room Assignment
+Average length of stay by hotel and market segment
 ```sql
 SELECT 
     hotel, market_segment,
     ROUND(IFNULL(AVG(CASE WHEN is_canceled = 0 THEN total_nights END), 0), 2) AS avg_length_of_stay
 FROM hotel_bookings
 GROUP BY hotel, market_segment;
-
 ```
-
-**Room type mismatch rate and its relationship to cancellation**
-
+Room type mismatch rate and its relationship to cancellation
 ```sql
 SELECT 
     COUNT(*) AS total_bookings_received,
@@ -421,15 +370,10 @@ SELECT
     (AVG(room_type_mismatch * is_canceled) - AVG(room_type_mismatch) * AVG(is_canceled)) /
     (STDDEV_POP(room_type_mismatch) * STDDEV_POP(is_canceled)) AS correlation_coefficient
 FROM hotel_bookings;
-
 ```
-
 📌 r ≈ -0.21 (moderate negative, computed at the row level — an earlier version aggregated by date first, which inflated the coefficient to -0.60). Mismatches associate with lower cancellation; one plausible explanation is hotels resolving mismatches via complimentary upgrades for guests who show up, rather than downgrades.
-
-### Repeat Guests \& Loyalty
-
-**Cancellation rate: repeat vs. new guests**
-
+Repeat Guests & Loyalty
+Cancellation rate: repeat vs. new guests
 ```sql
 SELECT 
     CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
@@ -438,26 +382,27 @@ SELECT
     ROUND(100 * COUNT(CASE WHEN is_canceled = 1 THEN booking_id END) / COUNT(*), 2) AS cancellation_rate
 FROM hotel_bookings
 GROUP BY guest_type;
-
 ```
-
 📌 Repeat guests cancel significantly less often than new guests.
-
-**ADR and booking changes: repeat vs. new guests**
-
+ADR and booking changes: repeat vs. new guests
 ```sql
 SELECT 
     CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
     ROUND(IFNULL(AVG(CASE WHEN is_canceled = 0 THEN adr END), 0), 2) AS avg_adr
 FROM hotel_bookings
 GROUP BY guest_type;
-
 ```
-
-📌 New guests pay nearly 50% more on average than repeat guests. Interestingly, average booking changes remain roughly equal between the two groups.
-
-**Do special requests correlate with lower cancellation?**
-
+📌 New guests pay nearly 50% more on average than repeat guests.
+Booking changes: repeat vs. new guests
+```sql
+SELECT 
+    CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
+    ROUND(IFNULL(AVG(CASE WHEN is_canceled = 0 THEN booking_changes END), 0), 2) AS avg_booking_changes
+FROM hotel_bookings
+GROUP BY guest_type;
+```
+📌 Interestingly, average booking changes remain roughly equal between repeat and new guests — loyalty affects cancellation rate and price paid, but not how often a guest amends their booking.
+Do special requests correlate with lower cancellation?
 ```sql
 SELECT 
     total_of_special_requests,
@@ -473,20 +418,15 @@ SELECT
     (AVG(total_of_special_requests * is_canceled) - AVG(total_of_special_requests) * AVG(is_canceled)) /
     (STDDEV_POP(total_of_special_requests) * STDDEV_POP(is_canceled)) AS correlation_coefficient
 FROM hotel_bookings;
-
 ```
-
 📌 r ≈ -0.12 (weak-to-moderate negative, row-level — an earlier version aggregated across only 6 grouped values, which inflated the coefficient to -0.97). Direction holds: more special requests associates with lower cancellation, consistent with an "engaged guest" theory, though the true effect is moderate, not near-perfect.
-
-**Car parking requests by customer type**
-
+Car parking requests by customer type
 ```sql
 SELECT 
     customer_type,
     ROUND(AVG(required_car_parking_spaces), 2) AS avg_parking_space_required
 FROM hotel_bookings
 GROUP BY customer_type;
-
 ```
 
 🗄️Full query set:[SQL Scripts](SQL/Queries.sql)
