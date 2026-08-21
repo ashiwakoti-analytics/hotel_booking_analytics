@@ -16,15 +16,16 @@ The project covers the full analytics workflow:
 
 ## Table of Contents
 
-* [Dashboard Preview](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-dashboard-preview)
-* [Key Findings](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-key-findings)
-* [Technologies Used](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#️-technologies-used)
-* [Repository Structure](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-repository-structure)
-* [Data Cleaning (Python)](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-data-cleaning-python)
-* [Database Schema](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-database-schema-mysql)
-* [SQL Business Questions \& Findings](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-sql-business-questions--findings)
-* [Power BI Star Schema \& Measures](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-power-bi-star-schema--measures)
-* [Author](https://claude.ai/chat/0421b580-15f7-4e61-ba77-83f630974237#-author)
+- [Project Overview](#-project-overview)
+- [Dashboard Preview](#-dashboard-preview)
+- [Key Findings](#-key-findings)
+- [Technologies Used](#-technologies-used)
+- [Repository Structure](#-repository-structure)
+- [Data Cleaning (Python)](#-data-cleaning-python)
+- [Database Schema](#-database-schema-mysql)
+- [SQL Business Questions \& Findings](#-sql-business-questions--findings)
+- [Power BI Star Schema \& Measures](#-power-bi-star-schema--measures)
+- [Author](#-author)
 
 \---
 
@@ -101,14 +102,13 @@ hotel\_booking\_analytics/
 
 ## 🧹 Data Cleaning (Python)
 
-Cleaning was done in pandas before loading into SQL. Key steps:
-
-* Renamed `adults` / `children` / `babies` to `num\_adults` / `num\_children` / `num\_babies` for clarity
-* Dropped `company` (94%+ missing)
-* Filled missing `agent` (sentinel -1), `num\_children` (0), and `country` (`'Unknown'`)
-* **Removed 32,001 duplicate rows** — roughly 27% of the raw dataset, a genuinely large and unusual amount for this specific Kaggle dataset, confirmed and cross-checked directly against the raw file rather than assumed
-* Filtered out negative and extreme-outlier `adr` values (raw data had a minimum of -6.38 and a maximum of 5,400 against a median of \~$95)
-* Removed zero-guest bookings (`num\_adults = 0 AND num\_children = 0`)
+- Cleaning was done in pandas before loading into SQL. Key steps:
+- Renamed `adults` , `children` , `babies` to `num_adults` , `num_children` , `num_babies` for clarity
+- Dropped `company` (94%+ missing)
+- Filled missing `agent` (sentinel -1), `num_children` (0), and `country` (`'Unknown'`)
+- Removed 32,001 duplicate rows — roughly 27% of the raw dataset, a genuinely large and unusual amount for this specific Kaggle dataset, confirmed and cross-checked directly against the raw file rather than assumed
+- Filtered out negative and extreme-outlier `adr` values (raw data had a minimum of -6.38 and a maximum of 5,400 against a median of ~$95)
+- Removed zero-guest bookings (`num_adults = 0 AND num_children = 0`)
 
 **Result: 119,390 raw rows → 87,221 cleaned rows.**
 
@@ -118,16 +118,16 @@ Cleaning was done in pandas before loading into SQL. Key steps:
 
 ## 🧱 Database Schema (MySQL)
 
-Cleaned data was loaded into a single `hotel\_bookings` table in MySQL, with derived columns added afterward:
+Cleaned data was loaded into a single `hotel_bookings` table in MySQL, with derived columns added afterward:
 
 |Derived column Formula Purpose|||
 |-|-|-|
-|`arrival\_date`|Combined from year/month/day columns|Enables date-based trend and seasonality queries|
-|`total\_guests`|`num\_adults + num\_children + num\_babies`|Party size analysis|
-|`total\_nights`|`stays\_in\_weekend\_nights + stays\_in\_week\_nights`|Length-of-stay, revenue calculations|
-|`total\_revenue`|`adr \* total\_nights`|Revenue analysis|
-|`room\_type\_mismatch`|`1` if `reserved\_room\_type ≠ assigned\_room\_type` else `0`|Room assignment analysis|
-|`lead\_time\_band`|Custom bins (0-3, 4-7, 8-14, 15-30, 31-60, 61-90, 91-180, 181-365, 366+)|Reused across multiple cancellation-driver queries|
+|`arrival_date`|Combined from year/month/day columns|Enables date-based trend and seasonality queries|
+|`total_guests`|`num_adults + num_children + num_babies`|Party size analysis|
+|`total_nights`|`stays_in_weekend_nights + stays_in_week_nights`|Length-of-stay, revenue calculations|
+|`total_revenue`|`adr * total_nights`|Revenue analysis|
+|`room_type_mismatch`|`1` if `reserved_room_type ≠ assigned_room_type` else `0`|Room assignment analysis|
+|`lead_time_band`|Custom bins (0-3, 4-7, 8-14, 15-30, 31-60, 61-90, 91-180, 181-365, 366+)|Reused across multiple cancellation-driver queries|
 
 🗄️Full setup script: [Hotel Booking Database_Setup](SQL/Database_Setup.sql)
 
@@ -444,18 +444,18 @@ The cleaned data was modeled as a proper star schema in Power BI rather than rep
 **Core DAX measures:**
 
 ```dax
-Total Bookings = COUNTROWS(fact\_bookings)
-Confirmed Bookings = CALCULATE(\[Total Bookings], fact\_bookings\[is\_canceled] = 0)
-Cancellations = CALCULATE(\[Total Bookings], fact\_bookings\[is\_canceled] = 1)
-Cancellation Rate = DIVIDE(\[Cancellations], \[Total Bookings])
-Total Potential Revenue = SUM(fact\_bookings\[total\_revenue])
-Confirmed Revenue = CALCULATE(\[Total Potential Revenue], fact\_bookings\[is\_canceled] = 0)
-Revenue at Risk = CALCULATE(\[Total Potential Revenue], fact\_bookings\[is\_canceled] = 1)
-Avg ADR (Confirmed) = CALCULATE(AVERAGE(fact\_bookings\[adr]), fact\_bookings\[is\_canceled] = 0)
+Total Bookings = COUNTROWS(fact_bookings)
+Confirmed Bookings = CALCULATE([Total Bookings], fact_bookings[is_canceled] = 0)
+Cancellations = CALCULATE([Total Bookings], fact_bookings[is_canceled] = 1)
+Cancellation Rate = DIVIDE([Cancellations], [Total Bookings])
+Total Potential Revenue = SUM(fact_bookings[total_revenue])
+Confirmed Revenue = CALCULATE([Total Potential Revenue], fact_bookings[is_canceled] = 0)
+Revenue at Risk = CALCULATE([Total Potential Revenue], fact_bookings[is_canceled] = 1)
+Avg ADR (Confirmed) = CALCULATE(AVERAGE(fact_bookings[adr]), fact_bookings[is_canceled] = 0)
 
 ```
 
-Correlation measures (special requests, room mismatch, lead time vs. ADR) were rebuilt in DAX using the same manual Pearson formula as the SQL layer (`STDEVX.P` in place of MySQL's `STDDEV\_POP`), so the dashboard's correlation callouts match the corrected, row-level SQL results exactly.
+Correlation measures (special requests, room mismatch, lead time vs. ADR) were rebuilt in DAX using the same manual Pearson formula as the SQL layer (`STDEVX.P` in place of MySQL's `STDDEV_POP`), so the dashboard's correlation callouts match the corrected, row-level SQL results exactly.
 
 📊Full report file: [Power BI](Power BI/Hotel_booking_report.pbix)
 
