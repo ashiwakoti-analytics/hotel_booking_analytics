@@ -1,10 +1,10 @@
-# Hotel Booking Analytics — Python, SQL \& Power BI
+# Hotel Booking Analytics — Python, SQL & Power BI
 
-End-to-end analysis of \~119K hotel bookings (2015–2017, two Portuguese hotels) — from raw-data cleaning through SQL business analysis to an interactive Power BI dashboard on a proper star schema.
+End-to-end analysis of ~119K hotel bookings (2015–2017, two Portuguese hotels) — from raw-data cleaning through SQL business analysis to an interactive Power BI dashboard on a proper star schema.
 
 ## 📌 Project Overview
 
-This project analyzes the Antonio, Almeida \& Nunes hotel bookings dataset (Kaggle), covering a City Hotel and a Resort Hotel over three years. Unlike a dataset with only cosmetic data-quality issues, this one arrived with real problems worth solving: \~27% duplicate rows, negative and extreme-outlier daily rates, missing guest/agent/country values, and zero-guest bookings — all handled in a documented Python cleaning pipeline before the data ever reached SQL.
+This project analyzes the Antonio, Almeida & Nunes hotel bookings dataset (Kaggle), covering a City Hotel and a Resort Hotel over three years. Unlike a dataset with only cosmetic data-quality issues, this one arrived with real problems worth solving: ~27% duplicate rows, negative and extreme-outlier daily rates, missing guest/agent/country values, and zero-guest bookings — all handled in a documented Python cleaning pipeline before the data ever reached SQL.
 
 The project covers the full analytics workflow:
 
@@ -23,11 +23,11 @@ The project covers the full analytics workflow:
 - [Repository Structure](#-repository-structure)
 - [Data Cleaning (Python)](#-data-cleaning-python)
 - [Database Schema](#-database-schema-mysql)
-- [SQL Business Questions \& Findings](#-sql-business-questions--findings)
-- [Power BI Star Schema \& Measures](#-power-bi-star-schema--measures)
+- [SQL Business Questions & Findings](#-sql-business-questions--findings)
+- [Power BI Star Schema & Measures](#-power-bi-star-schema--measures)
 - [Author](#-author)
 
-\---
+---
 
 ## 📊 Dashboard Preview
 
@@ -37,68 +37,68 @@ The project covers the full analytics workflow:
 
 **Page 1 — Executive Overview** KPI strip (bookings, cancellation rate, revenue, avg. ADR), monthly seasonality trend by hotel, hotel-type comparison, top 10 countries by confirmed revenue.
 
-![Executive Overview](Screenshots/Executive\_Overview.png)
+![Executive Overview](Screenshots/Executive_Overview.png)
 
 **Page 2 — Cancellation Drivers** Deposit-type cancellation rate (the dataset's standout finding), lead-time-band cancellation gradient, market segment × channel heatmap, cancellation history, customer type.
 
-![Cancellation Drivers](Screenshots/Cancellation\_trend.png)
+![Cancellation Drivers](Screenshots/Cancellation_trend.png)
 
-**Page 3 — Revenue \& Pricing** ADR trend over time by hotel, ADR by room type \& hotel, revenue at risk from cancellations, lead-time/ADR correlation.
+**Page 3 — Revenue & Pricing** ADR trend over time by hotel, ADR by room type & hotel, revenue at risk from cancellations, lead-time/ADR correlation.
 
-![Revenue \& Pricing](Screenshots/Revenue\_\&\_Pricing.png)
+![Revenue & Pricing](Screenshots/Revenue_&_Pricing.png)
 
-**Page 4 — Guest Behavior \& Loyalty** Repeat vs. new guest cancellation and ADR comparison, special-requests vs. cancellation trend, room-mismatch analysis, party size by segment, parking requests by customer type.
+**Page 4 — Guest Behavior & Loyalty** Repeat vs. new guest cancellation and ADR comparison, special-requests vs. cancellation trend, room-mismatch analysis, party size by segment, parking requests by customer type.
 
-![Guest Behaviour \& Loyalty](Screenshots/Guest\_Behaviour.png)
+![Guest Behaviour & Loyalty](Screenshots/Guest_Behaviour.png)
 
-\---
+---
 
 ## 🔑 Key Findings
 
 **Cancellations are highly predictable — and the drivers compound.**
 
 * **Deposit type is the single strongest predictor in the dataset**: Non-Refund bookings cancel **94.70%** of the time, vs. 26.72% (No Deposit) and 24.30% (Refundable). Investigation traced this to a narrow population — Groups booked via the TA/TO channel, disproportionately through a single travel agent — consistent with block bookings being released rather than random guest behavior.
-* **Lead time predicts cancellation cleanly and monotonically**: from 7.14% for bookings made 0–3 days out, up to \~40% for bookings made 6+ months in advance.
+* **Lead time predicts cancellation cleanly and monotonically**: from 7.14% for bookings made 0–3 days out, up to ~40% for bookings made 6+ months in advance.
 * **Booking channel carries real risk concentration**: Online TA/TA-TO is both the single largest source of bookings (51,251 — over half the dataset) and a high-cancellation channel (35.51%).
 * **Previous cancellation history shows a sharp, non-obvious spike**: guests with exactly 1 prior cancellation cancel at 76.16% — over 2.5× the rate of guests with 0 prior cancellations (26.73%) — again linked back to the same Non-Refund/Groups population.
 
 **Pricing is strongly seasonal and has genuinely grown year over year.**
 
-* Resort Hotel's ADR swings nearly 4× across the year ($48.60 in January to $182.10 in August); City Hotel is far flatter (\~$83–125), consistent with a summer-leisure property vs. a business/year-round property.
+* Resort Hotel's ADR swings nearly 4× across the year ($48.60 in January to $182.10 in August); City Hotel is far flatter (~$83–125), consistent with a summer-leisure property vs. a business/year-round property.
 * Comparing the same month across years, ADR climbed every year: July $116.59 → $129.86 → $143.92 (2015→2016→2017); August $121.77 → $147.37 → $164.66 — a 24–35% increase in peak-season rate over two years.
 * Lead time has **no relationship with price** (r ≈ 0.03) — booking early doesn't get a guest a better or worse rate in this dataset, a useful negative finding that rules out a common assumption.
 
 **Guest engagement signals are real, moderate predictors — correctly scaled.**
 
-* Row-level Pearson correlation (not aggregated group averages, which would overstate the effect): number of special requests vs. cancellation, **r ≈ -0.12**; room-type mismatch vs. cancellation, **r ≈ -0.21**. Both real, both moderate — not the inflated \~-0.97 / -0.60 an aggregated calculation would suggest.
-* Repeat guests cancel far less often than new guests (\~7% vs. \~28%) but also pay noticeably less on average (\~$65 vs. \~$103 ADR) — loyalty correlates with lower risk and lower rate simultaneously.
+* Row-level Pearson correlation (not aggregated group averages, which would overstate the effect): number of special requests vs. cancellation, **r ≈ -0.12**; room-type mismatch vs. cancellation, **r ≈ -0.21**. Both real, both moderate — not the inflated ~-0.97 / -0.60 an aggregated calculation would suggest.
+* Repeat guests cancel far less often than new guests (~7% vs. ~28%) but also pay noticeably less on average (~$65 vs. ~$103 ADR) — loyalty correlates with lower risk and lower rate simultaneously.
 
 **Revenue at risk from cancellations is substantial**: 35.23% of City Hotel's total potential revenue and 31.04% of Resort Hotel's is tied up in bookings that ultimately cancel — framed as revenue *at risk*, not revenue definitively lost, since cancelled rooms may be resold.
 
-\---
+---
 
 ## ⚙️ Technologies Used
 
 * **Python** (pandas) — data cleaning and validation
 * **MySQL / MySQL Workbench** — business-question SQL analysis
 * **Power BI** — star-schema data model, DAX measures, interactive dashboard
-* **Git \& GitHub**
+* **Git & GitHub**
 
-\---
+---
 
 ## 📁 Repository Structure
 
 ```
-hotel\_booking\_analytics/
-├── Data/          → raw hotel\_bookings.csv and cleaned dataset
-├── Python/        → Jupyter notebook: data cleaning \& validation pipeline
+hotel_booking_analytics/
+├── Data/          → raw hotel_bookings.csv and cleaned dataset
+├── Python/        → Jupyter notebook: data cleaning & validation pipeline
 ├── SQL/           → database setup + all business-question queries
 ├── Power BI/      → .pbix report file (star schema + dashboard)
 └── Screenshots/   → dashboard page exports
 
 ```
 
-\---
+---
 
 ## 🧹 Data Cleaning (Python)
 
@@ -114,14 +114,14 @@ hotel\_booking\_analytics/
 
 🐍Full cleaning notebook: [Hotel Booking Cleaning Notebook](Python/Hotel_booking_cleaning.ipynb)
 
-\---
+---
 
 ## 🧱 Database Schema (MySQL)
 
 Cleaned data was loaded into a single `hotel_bookings` table in MySQL, with derived columns added afterward:
 
-|Derived column Formula Purpose|||
-|-|-|-|
+| Derived column | Formula | Purpose |
+|---|---|---|
 |`arrival_date`|Combined from year/month/day columns|Enables date-based trend and seasonality queries|
 |`total_guests`|`num_adults + num_children + num_babies`|Party size analysis|
 |`total_nights`|`stays_in_weekend_nights + stays_in_week_nights`|Length-of-stay, revenue calculations|
@@ -131,15 +131,17 @@ Cleaned data was loaded into a single `hotel_bookings` table in MySQL, with deri
 
 🗄️Full setup script: [Hotel Booking Database_Setup](SQL/Database_Setup.sql)
 
-\---
+---
 
-## 📊 SQL Business Questions \& Findings
+## 📊 SQL Business Questions & Findings
 
 18 business questions across 8 categories, run against the 87,221-row cleaned dataset.
 
 ### Overview
 
-Total bookings, cancellation rate, and revenue by hotel type
+
+#### **Total bookings, cancellation rate, and revenue by hotel type**
+
 ```sql
 WITH summary_cte AS(
 	SELECT 
@@ -158,7 +160,9 @@ SELECT
 FROM summary_cte;
 ```
 📌 City Hotel: 53,271 bookings, 30.10% cancellation rate, $12.15M confirmed revenue. Resort Hotel: 33,950 bookings, 23.49% cancellation rate, $10.82M confirmed revenue.
-Booking volume by calendar month (seasonality, all years combined)
+
+#### **Booking volume by calendar month (seasonality, all years combined)**
+
 ```sql
 SELECT 
     MONTH(arrival_date) AS calendar_month,
@@ -170,7 +174,9 @@ GROUP BY calendar_month
 ORDER BY calendar_month;
 ```
 📌 August is the single busiest calendar month across all three years combined (7,620 confirmed bookings, $4.6M revenue), with July close behind. November–January is the trough (~3,700–3,900 bookings, under $1M revenue).
-Booking and revenue trend, 2015–2017
+
+#### **Booking and revenue trend, 2015–2017**
+
 ```sql
 SELECT 
     DATE_FORMAT(arrival_date, '%Y-%m') AS year_month,
@@ -182,8 +188,12 @@ GROUP BY year_month
 ORDER BY year_month;
 ```
 📌 August is the peak month every year (7,620 confirmed bookings, $4.6M revenue at its highest). Revenue grew faster than booking volume year over year — e.g. July 2016→2017 bookings +6.5%, revenue +18% — pointing to rate growth rather than volume growth as the main driver.
-Cancellation Analysis
-Cancellation rate by deposit type
+
+### Cancellation Analysis
+
+
+#### **Cancellation rate by deposit type**
+
 ```sql
 SELECT 
     deposit_type,
@@ -195,7 +205,9 @@ FROM hotel_bookings
 GROUP BY deposit_type;
 ```
 📌 Non-Refund: 94.70% cancellation (982 of 1,037 bookings). No Deposit: 26.72%. Refundable: 24.30%.
-Investigating the Non-Refund anomaly — market segment, channel, and agent
+
+#### **Investigating the Non-Refund anomaly — market segment, channel, and agent**
+
 ```sql
 SELECT 
     market_segment, distribution_channel, agent,
@@ -206,7 +218,9 @@ GROUP BY market_segment, distribution_channel, agent
 ORDER BY cancellations DESC;
 ```
 📌 64.4% of Non-Refund cancellations come from the "Groups" market segment, 89% flow through the TA/TO channel, and a single agent accounts for nearly a third of the anomaly on its own — consistent with tour-operator block bookings being released rather than individual guest cancellations.
-Cancellation rate by lead time band
+
+#### **Cancellation rate by lead time band**
+
 ```sql
 SELECT 
     lead_time_band,
@@ -218,7 +232,9 @@ GROUP BY lead_time_band
 ORDER BY cancelation_rate DESC;
 ```
 📌 Clean, monotonic gradient: 7.14% (0-3 days) → 11.39% → 20.63% → 28.29% → 31.66% → 32.58% → 35.01% → 39.69% → 40.78% (366+ days).
-Cancellation rate by market segment and distribution channel (filtered to n ≥ 10 to avoid small-sample noise)
+
+#### **Cancellation rate by market segment and distribution channel (filtered to n ≥ 10 to avoid small-sample noise)**
+
 ```sql
 SELECT 
     market_segment, distribution_channel,
@@ -231,7 +247,9 @@ HAVING total_bookings_received >= 10
 ORDER BY cancelation_rate DESC;
 ```
 📌 Online TA/TA-TO: 35.51% cancellation on 51,251 bookings — the largest volume and one of the highest risk segments simultaneously. Direct bookings are consistently the safest across every channel pairing.
-Cancellation rate by previous cancellation history
+
+#### **Cancellation rate by previous cancellation history**
+
 ```sql
 SELECT 
     CASE
@@ -251,7 +269,9 @@ GROUP BY previous_cancellations_binned
 ORDER BY previous_cancellations_binned;
 ```
 📌 Sharp, non-monotonic spike at exactly 1 prior cancellation (76.16%) — over 2.5× the 0-prior rate (26.73%) — driven partly by the same Non-Refund/Groups population found above.
-Cancellation rate by customer type
+
+#### **Cancellation rate by customer type**
+
 ```sql
 SELECT 
     customer_type,
@@ -263,8 +283,12 @@ GROUP BY customer_type
 ORDER BY customer_type;
 ```
 📌 Transient (individual) bookings — 82% of the dataset — cancel at 30.14%, by far the highest of the four customer types. Notably, this contradicts the market segment "Groups" finding above: `customer_type = Group` actually has the lowest cancellation rate (9.80%) of any customer type — these are two distinct classifications in the source data, not a contradiction in the analysis.
-Revenue Analysis
-Average ADR by hotel, room type, and month
+
+### Revenue Analysis
+
+
+#### **Average ADR by hotel, room type, and month**
+
 ```sql
 SELECT 
     hotel, assigned_room_type, MONTH(arrival_date) AS arrival_month,
@@ -274,7 +298,9 @@ GROUP BY hotel, assigned_room_type, arrival_month
 ORDER BY avg_adr DESC;
 ```
 📌 Room types G and F command the highest rates at both hotels; the most-booked room type (A) sits near the bottom of the pricing scale. Resort Hotel's pricing swings nearly 4× seasonally ($48.60 January → $182.10 August); City Hotel is far flatter (~$83–125 year-round).
-Revenue at risk from cancellations
+
+#### **Revenue at risk from cancellations**
+
 ```sql
 SELECT 
     hotel,
@@ -285,7 +311,9 @@ FROM hotel_bookings
 GROUP BY hotel;
 ```
 📌 City Hotel: 35.23% of potential revenue at risk ($6.61M). Resort Hotel: 31.04% ($4.87M). Framed as revenue at risk, not revenue definitively lost, since cancelled rooms may be resold to another guest.
-Does lead time correlate with ADR?
+
+#### **Does lead time correlate with ADR?**
+
 ```sql
 SELECT 
     (AVG(lead_time * adr) - AVG(lead_time) * AVG(adr)) /
@@ -294,7 +322,9 @@ FROM hotel_bookings
 WHERE is_canceled = 0;
 ```
 📌 r ≈ 0.028 — no meaningful relationship. Booking further in advance doesn't predict a higher or lower rate in this dataset.
-ADR trend over time
+
+#### **ADR trend over time**
+
 ```sql
 SELECT 
     DATE_FORMAT(arrival_date, '%Y-%m') AS year_month,
@@ -304,8 +334,12 @@ GROUP BY year_month
 ORDER BY year_month;
 ```
 📌 Comparing the same month year over year, ADR rose consistently: July $116.59 → $129.86 → $143.92; August $121.77 → $147.37 → $164.66 — roughly 24–35% growth in peak-season rate over two years.
-Guest Geography
-Top 10 countries by booking volume and cancellation rate
+
+### Guest Geography
+
+
+#### **Top 10 countries by booking volume and cancellation rate**
+
 ```sql
 SELECT 
     country,
@@ -318,7 +352,9 @@ GROUP BY country
 ORDER BY total_bookings_received DESC, cancellation_rate DESC
 LIMIT 10;
 ```
-Party size by market segment (filtered to n ≥ 10)
+
+#### **Party size by market segment (filtered to n ≥ 10)**
+
 ```sql
 SELECT 
     market_segment,
@@ -336,7 +372,9 @@ GROUP BY market_segment, party_size
 HAVING total_bookings_received >= 10
 ORDER BY confirmation_rate DESC;
 ```
-Top countries by confirmed revenue
+
+#### **Top countries by confirmed revenue**
+
 ```sql
 SELECT 
     country,
@@ -346,8 +384,12 @@ GROUP BY country
 ORDER BY total_confirmed_revenue DESC
 LIMIT 10;
 ```
-Stay Patterns & Room Assignment
-Average length of stay by hotel and market segment
+
+### Stay Patterns & Room Assignment
+
+
+#### **Average length of stay by hotel and market segment**
+
 ```sql
 SELECT 
     hotel, market_segment,
@@ -355,7 +397,9 @@ SELECT
 FROM hotel_bookings
 GROUP BY hotel, market_segment;
 ```
-Room type mismatch rate and its relationship to cancellation
+
+#### **Room type mismatch rate and its relationship to cancellation**
+
 ```sql
 SELECT 
     COUNT(*) AS total_bookings_received,
@@ -372,8 +416,12 @@ SELECT
 FROM hotel_bookings;
 ```
 📌 r ≈ -0.21 (moderate negative, computed at the row level — an earlier version aggregated by date first, which inflated the coefficient to -0.60). Mismatches associate with lower cancellation; one plausible explanation is hotels resolving mismatches via complimentary upgrades for guests who show up, rather than downgrades.
-Repeat Guests & Loyalty
-Cancellation rate: repeat vs. new guests
+
+### Repeat Guests & Loyalty
+
+
+#### **Cancellation rate: repeat vs. new guests**
+
 ```sql
 SELECT 
     CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
@@ -384,7 +432,9 @@ FROM hotel_bookings
 GROUP BY guest_type;
 ```
 📌 Repeat guests cancel significantly less often than new guests.
-ADR and booking changes: repeat vs. new guests
+
+#### **ADR and booking changes: repeat vs. new guests**
+
 ```sql
 SELECT 
     CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
@@ -393,7 +443,9 @@ FROM hotel_bookings
 GROUP BY guest_type;
 ```
 📌 New guests pay nearly 50% more on average than repeat guests.
-Booking changes: repeat vs. new guests
+
+#### **Booking changes: repeat vs. new guests**
+
 ```sql
 SELECT 
     CASE WHEN is_repeated_guest = 1 THEN 'repeat_guests' ELSE 'new_guests' END AS guest_type,
@@ -402,7 +454,9 @@ FROM hotel_bookings
 GROUP BY guest_type;
 ```
 📌 Interestingly, average booking changes remain roughly equal between repeat and new guests — loyalty affects cancellation rate and price paid, but not how often a guest amends their booking.
-Do special requests correlate with lower cancellation?
+
+#### **Do special requests correlate with lower cancellation?**
+
 ```sql
 SELECT 
     total_of_special_requests,
@@ -420,7 +474,9 @@ SELECT
 FROM hotel_bookings;
 ```
 📌 r ≈ -0.12 (weak-to-moderate negative, row-level — an earlier version aggregated across only 6 grouped values, which inflated the coefficient to -0.97). Direction holds: more special requests associates with lower cancellation, consistent with an "engaged guest" theory, though the true effect is moderate, not near-perfect.
-Car parking requests by customer type
+
+#### **Car parking requests by customer type**
+
 ```sql
 SELECT 
     customer_type,
@@ -431,15 +487,15 @@ GROUP BY customer_type;
 
 🗄️Full query set:[SQL Scripts](SQL/Queries.sql)
 
-\---
+---
 
-## 📈 Power BI Star Schema \& Measures
+## 📈 Power BI Star Schema & Measures
 
 The cleaned data was modeled as a proper star schema in Power BI rather than reported directly off the flat table:
 
-**Fact table:** `fact\_bookings` — booking-level measures (lead time, ADR, revenue, guest counts, cancellation flag, etc.) plus foreign keys to each dimension.
+**Fact table:** `fact_bookings` — booking-level measures (lead time, ADR, revenue, guest counts, cancellation flag, etc.) plus foreign keys to each dimension.
 
-**Dimension tables:** `dim\_date` (a full continuous calendar, marked as the model's official date table for time-intelligence support), `dim\_hotel`, `dim\_market\_segment`, `dim\_deposit\_type`, `dim\_customer\_type`, `dim\_room\_type` (a role-playing dimension, linked to both `reserved\_room\_type` and `assigned\_room\_type`, with the assigned-room relationship active by default), `dim\_country`.
+**Dimension tables:** `dim_date` (a full continuous calendar, marked as the model's official date table for time-intelligence support), `dim_hotel`, `dim_market_segment`, `dim_deposit_type`, `dim_customer_type`, `dim_room_type` (a role-playing dimension, linked to both `reserved_room_type` and `assigned_room_type`, with the assigned-room relationship active by default), `dim_country`.
 
 **Core DAX measures:**
 
@@ -459,7 +515,7 @@ Correlation measures (special requests, room mismatch, lead time vs. ADR) were r
 
 📊Full report file: [Power BI](Power BI/Hotel_booking_report.pbix)
 
-\---
+---
 
 ## 👤 Author
 
@@ -467,7 +523,7 @@ Correlation measures (special requests, room mismatch, lead time vs. ADR) were r
 
 Data Analyst (entry-level) | Python | SQL | Power BI
 
-\---
+---
 
 ## ⭐ Project Purpose
 
